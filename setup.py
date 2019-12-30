@@ -33,6 +33,7 @@ setup(
     packages=find_packages("src"),
     install_requires=[
         "transformers",
+        "torch",
     ],
     extras_require=extras,
     python_requires=">=3.5.0",
