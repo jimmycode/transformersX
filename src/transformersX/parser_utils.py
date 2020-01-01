@@ -138,8 +138,8 @@ def add_environment_args(parser):
     group.add_argument("--fp16_opt_level", type=str, default="O1",
                        help="For fp16: Apex AMP optimization level selected in ['O0', 'O1', 'O2', and 'O3']."
                             "See details at https://nvidia.github.io/apex/amp.html")
-    group.add_argument("--server_ip", type=str, default="", help="Can be used for distant debugging.")
-    group.add_argument("--server_port", type=str, default="", help="Can be used for distant debugging.")
+    # group.add_argument("--server_ip", type=str, default="", help="Can be used for distant debugging.")
+    # group.add_argument("--server_port", type=str, default="", help="Can be used for distant debugging.")
 
     return group
 
