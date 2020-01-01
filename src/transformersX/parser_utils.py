@@ -10,13 +10,13 @@ def add_general_args(parser):
     group.add_argument("--config_name", default="", type=str,
                        help="Pretrained config name or path if not the same as model_name.")
 
+    group.add_argument("--data_dir", default=None, type=str,
+                       help="The input data dir. Should contain the .json files for the task."
+                            "If no data dir or train/predict files are specified, will run with tensorflow_datasets.")
     group.add_argument("--output_dir", default=None, type=str, required=True,
                        help="The output directory where the model checkpoints and predictions will be written.", )
     group.add_argument("--cache_dir", default="", type=str,
                        help="Where do you want to store the pre-trained models downloaded from s3")
-    group.add_argument("--data_dir", default=None, type=str,
-                       help="The input data dir. Should contain the .json files for the task."
-                            "If no data dir or train/predict files are specified, will run with tensorflow_datasets.")
 
     group.add_argument("--do_train", action="store_true", help="Whether to run training.")
     group.add_argument("--evaluate_during_training", action="store_true", help="Rul evaluation during training at each logging step.")
@@ -33,6 +33,8 @@ def add_training_args(parser):
                        help="The input training file. If a data dir is specified, will look for the file there"
                             "If no data dir or train/predict files are specified, will run with tensorflow_datasets.")
     group.add_argument("--per_gpu_train_batch_size", default=8, type=int, help="Batch size per GPU/CPU for training.")
+    group.add_argument('--evaluate_steps_during_training', default=100, type=int,
+                       help="Evaluate every X steps during training.")
     return group
 
 
@@ -79,6 +81,7 @@ def add_optimization_args(parser):
     group.add_argument("--max_steps", default=-1, type=int,
                        help="If > 0: set total number of training steps to perform. Override num_train_epochs.")
     group.add_argument("--warmup_steps", default=0, type=int, help="Linear warmup over warmup_steps.")
+    group.add_argument("--warmup_ratio", default=0.05, type=float, help="Ratio of warmup over total number of steps.")
     return group
 
 
@@ -106,6 +109,7 @@ def add_squad_args(parser):
 def add_logging_args(parser):
     group = parser.add_argument_group("Logging")
     group.add_argument("--logging_steps", type=int, default=50, help="Log every X updates steps.")
+    group.add_argument("--logging_dir", type=str, default=None, help="Log output directory (for tensorboard).")
     return group
 
 
@@ -113,6 +117,15 @@ def add_checkpoint_args(parser):
     group = parser.add_argument_group("Checkpointing")
     group.add_argument("--save_steps", type=int, default=50, help="Save checkpoint every X updates steps.")
     group.add_argument("--overwrite_output_dir", action="store_true", help="Overwrite the content of the output directory")
+    group.add_argument("--save_all_checkpoints", action='store_true', help="Save all the checkpoint.")
+    group.add_argument("--save_last_checkpoint", action='store_true',
+                       help="Only save the last checkpoint, overwrite all previous one to save disk space.")
+    group.add_argument("--save_best_checkpoint", action='store_true', help="Save the best checkpoint.")
+    group.add_argument("--best_checkpoint_metric", type=str, default="f1",
+                       help="The metric for finding the best checkpoint.")
+    group.add_argument("--maximize_best_checkpoint_metric", action='store_true',
+                       help="True if the goal is to maximize the metric (e.g., accuracy); "
+                            "False otherwise (e.g., perplexity).")
     return group
 
 
