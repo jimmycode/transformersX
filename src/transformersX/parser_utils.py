@@ -23,7 +23,7 @@ def add_general_args(parser):
     group.add_argument("--do_eval", action="store_true", help="Whether to run eval on the dev set.")
 
     group.add_argument("--seed", type=int, default=42, help="random seed for initialization")
-
+    group.add_argument("--verbose", action="store_true", help="If true, print more warnings for debugging. ")
     return group
 
 
