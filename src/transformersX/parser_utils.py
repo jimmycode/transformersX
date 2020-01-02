@@ -109,7 +109,7 @@ def add_squad_args(parser):
 def add_logging_args(parser):
     group = parser.add_argument_group("Logging")
     group.add_argument("--logging_steps", type=int, default=50, help="Log every X updates steps.")
-    group.add_argument("--logging_dir", type=str, default=None, help="Log output directory (for tensorboard).")
+    group.add_argument("--tb_logging_dir", type=str, default=None, help="Log output directory for tensorboard.")
     return group
 
 
