@@ -81,7 +81,7 @@ def add_optimization_args(parser):
     group.add_argument("--max_steps", default=-1, type=int,
                        help="If > 0: set total number of training steps to perform. Override num_train_epochs.")
     group.add_argument("--warmup_steps", default=0, type=int, help="Linear warmup over warmup_steps.")
-    group.add_argument("--warmup_ratio", default=0.05, type=float, help="Ratio of warmup over total number of steps.")
+    group.add_argument("--warmup_ratio", default=0.0, type=float, help="Ratio of warmup over total number of steps.")
     return group
 
 
