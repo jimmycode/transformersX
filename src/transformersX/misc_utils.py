@@ -1,4 +1,4 @@
-import datetime
+from datetime import datetime
 
 
 def append_timestamp_to_dir(dir_path):
