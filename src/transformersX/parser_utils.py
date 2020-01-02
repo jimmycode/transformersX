@@ -33,7 +33,7 @@ def add_training_args(parser):
                        help="The input training file. If a data dir is specified, will look for the file there"
                             "If no data dir or train/predict files are specified, will run with tensorflow_datasets.")
     group.add_argument("--per_gpu_train_batch_size", default=8, type=int, help="Batch size per GPU/CPU for training.")
-    group.add_argument('--evaluate_steps_during_training', default=100, type=int,
+    group.add_argument('--evaluate_steps', default=100, type=int,
                        help="Evaluate every X steps during training.")
     return group
 
