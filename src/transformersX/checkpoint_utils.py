@@ -41,13 +41,15 @@ def save_checkpoint(args, model, global_step, eval_results=None, tokenizer=None,
         logging.info("Saving model checkpoint to %s", output_dir)
         model_to_save = model.module if hasattr(model, 'module') else model  # Take care of distributed/parallel training
         model_to_save.save_pretrained(output_dir)
-        torch.save(args, os.path.join(output_dir, ARGS_CKPT))
+        torch.save(args, os.path.join(output_dir, ARGS_CKPT))  # save training arguments
 
-        if tokenizer is not None:
+        if hasattr(model_to_save, "config"):  # save config
+            model_to_save.config.save_pretrained(output_dir)
+        if tokenizer is not None:  # save tokenizer
             tokenizer.save_pretrained(output_dir)
-        if optimizer is not None:
+        if optimizer is not None:  # save optimizer state
             torch.save(optimizer.state_dict(), os.path.join(output_dir, OPTIMIZER_CKPT))
-        if scheduler is not None:
+        if scheduler is not None:  # save scheduler state
             torch.save(scheduler.state_dict(), os.path.join(output_dir, SCHEDULER_CKPT))
 
     return output_dirs
