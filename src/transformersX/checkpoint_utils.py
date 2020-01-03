@@ -43,8 +43,6 @@ def save_checkpoint(args, model, global_step, eval_results=None, tokenizer=None,
         model_to_save.save_pretrained(output_dir)
         torch.save(args, os.path.join(output_dir, ARGS_CKPT))  # save training arguments
 
-        if hasattr(model_to_save, "config"):  # save config
-            model_to_save.config.save_pretrained(output_dir)
         if tokenizer is not None:  # save tokenizer
             tokenizer.save_pretrained(output_dir)
         if optimizer is not None:  # save optimizer state
