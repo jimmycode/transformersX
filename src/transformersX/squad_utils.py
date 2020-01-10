@@ -193,7 +193,8 @@ def convert_examples_to_features(examples, tokenizer, max_seq_length,
                                  sequence_a_segment_id=0, sequence_b_segment_id=1,
                                  cls_token_segment_id=0, pad_token_segment_id=0,
                                  mask_padding_with_zero=True,
-                                 sequence_a_is_doc=False):
+                                 sequence_a_is_doc=False,
+                                 p_mask_cls=False):
     """Loads a data file into a list of `InputBatch`s."""
 
     unique_id = 1000000000
@@ -263,15 +264,15 @@ def convert_examples_to_features(examples, tokenizer, max_seq_length,
             token_is_max_context = {}
             segment_ids = []
 
-            # p_mask: mask with 1 for token than cannot be in the answer (0 for token which can be in an answer)
-            # Original TF implem also keep the classification token (set to 0) (not sure why...)
+            # p_mask: mask with 1 for tokens than cannot be in the answer (0 for tokens which can be in an answer)
+            # Original TF implementation also keep the classification token (set to 0) (not sure why...)
             p_mask = []
 
             # CLS token at the beginning
             if not cls_token_at_end:
                 tokens.append(cls_token)
                 segment_ids.append(cls_token_segment_id)
-                p_mask.append(0)
+                p_mask.append(1 if p_mask_cls else 0)  # p_mask_cls=True if [CLS] cannot be the answer
                 cls_index = 0
 
             # XLNet: P SEP Q SEP CLS
@@ -322,7 +323,7 @@ def convert_examples_to_features(examples, tokenizer, max_seq_length,
             if cls_token_at_end:
                 tokens.append(cls_token)
                 segment_ids.append(cls_token_segment_id)
-                p_mask.append(0)
+                p_mask.append(1 if p_mask_cls else 0)  # p_mask_cls=True if [CLS] cannot be the answer
                 cls_index = len(tokens) - 1  # Index of classification token
 
             input_ids = tokenizer.convert_tokens_to_ids(tokens)
