@@ -777,12 +777,13 @@ def write_predictions_extended(all_examples, all_features, all_results, n_best_s
                             start_index=start_index,
                             end_index=end_index,
                             start_log_prob=start_log_prob,
-                            end_log_prob=end_log_prob))
+                            end_log_prob=end_log_prob
+                        )
+                    )
 
-        prelim_predictions = sorted(
-            prelim_predictions,
-            key=lambda x: (x.start_log_prob + x.end_log_prob),
-            reverse=True)
+        prelim_predictions = sorted(prelim_predictions,
+                                    key=lambda x: (x.start_log_prob + x.end_log_prob),
+                                    reverse=True)
 
         seen_predictions = {}
         nbest = []
@@ -825,24 +826,22 @@ def write_predictions_extended(all_examples, all_features, all_results, n_best_s
                 _NbestPrediction(
                     text=final_text,
                     start_log_prob=pred.start_log_prob,
-                    end_log_prob=pred.end_log_prob))
+                    end_log_prob=pred.end_log_prob
+                )
+            )
 
         # In very rare edge cases we could have no valid predictions. So we
         # just create a nonce prediction in this case to avoid failure.
-        if not nbest:
-            nbest.append(
-                _NbestPrediction(text="", start_log_prob=-1e6,
-                                 end_log_prob=-1e6))
+        if len(nbest) == 0:
+            nbest.append(_NbestPrediction(text="", start_log_prob=-1e6, end_log_prob=-1e6))
 
+        # Compute the normalized probabilities for nbest
         total_scores = []
-        best_non_null_entry = None
         for entry in nbest:
             total_scores.append(entry.start_log_prob + entry.end_log_prob)
-            if not best_non_null_entry:
-                best_non_null_entry = entry
-
         probs = _compute_softmax(total_scores)
 
+        # Convert _NbestPrediction to dictionary for json dump
         nbest_json = []
         for (i, entry) in enumerate(nbest):
             output = collections.OrderedDict()
@@ -851,17 +850,17 @@ def write_predictions_extended(all_examples, all_features, all_results, n_best_s
             output["start_log_prob"] = entry.start_log_prob
             output["end_log_prob"] = entry.end_log_prob
             nbest_json.append(output)
-
         assert len(nbest_json) >= 1
-        assert best_non_null_entry is not None
 
-        score_diff = score_null
-        scores_diff_json[example.qas_id] = score_diff
         # note(zhiliny): always predict best_non_null_entry
         # and the evaluation script will search for the best threshold
+        best_non_null_entry = nbest[0]
+        assert best_non_null_entry is not None
         all_predictions[example.qas_id] = best_non_null_entry.text
 
         all_nbest_json[example.qas_id] = nbest_json
+
+        scores_diff_json[example.qas_id] = score_null
 
     with open(output_prediction_file, "w") as writer:
         writer.write(json.dumps(all_predictions, indent=4) + "\n")
