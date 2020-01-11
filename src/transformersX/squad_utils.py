@@ -737,13 +737,15 @@ def write_predictions_extended(all_examples, all_features, all_results, n_best_s
         # keep track of the minimum score of null start+end of position 0
         score_null = 1000000  # large and positive
 
+        # TODO (yuxiangwu): are these features for the same QA pair?
         for (feature_index, feature) in enumerate(features):
             result = unique_id_to_result[feature.unique_id]
 
+            # TODO (yuxiangwu): should we aggregate score_null across features?
             cur_null_score = result.cls_logits
-
             # if we could have irrelevant answers, get the min score of irrelevant
             score_null = min(score_null, cur_null_score)
+            # TODO (yuxiangwu): should we add log(1-exp(cls_logits)) to answer probs?
 
             for i in range(start_n_top):
                 for j in range(end_n_top):
@@ -822,6 +824,7 @@ def write_predictions_extended(all_examples, all_features, all_results, n_best_s
 
             seen_predictions[final_text] = True
 
+            # TODO (yuxiangwu): how about aggregating the probabilities with the same final text?
             nbest.append(
                 _NbestPrediction(
                     text=final_text,
@@ -881,6 +884,7 @@ def write_predictions_extended(all_examples, all_features, all_results, n_best_s
     exact_raw, f1_raw = get_raw_scores(orig_data, all_predictions)
     out_eval = {}
 
+    # TODO (yuxiangwu): add evaluation of has_ans/no_ans prediction accuracy?
     find_all_best_thresh_v2(out_eval, all_predictions, exact_raw, f1_raw, scores_diff_json, qid_to_has_ans)
 
     return out_eval
