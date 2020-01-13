@@ -716,7 +716,7 @@ def write_predictions_extended(all_examples, all_features, all_results, n_best_s
         "NbestPrediction", ["text", "start_log_prob", "end_log_prob"])
 
     logger.info("Writing predictions to: %s", output_prediction_file)
-    # logger.info("Writing nbest to: %s" % (output_nbest_file))
+    logger.info("Writing nbest to: %s" % (output_nbest_file))
 
     example_index_to_features = collections.defaultdict(list)
     for feature in all_features:
