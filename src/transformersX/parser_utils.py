@@ -71,6 +71,8 @@ def add_tokenizer_args(parser):
 
 def add_optimization_args(parser):
     group = parser.add_argument_group('Optimization')
+    group.add_argument("--resume_prev_optim", action="store_true", help="Restore from previous optimizer states.")
+
     group.add_argument("--learning_rate", default=5e-5, type=float, help="The initial learning rate for Adam.")
     group.add_argument("--gradient_accumulation_steps", type=int, default=1,
                        help="Number of updates steps to accumulate before performing a backward/update pass.")
