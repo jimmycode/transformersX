@@ -132,7 +132,7 @@ class MeterBundle(object):
         self.meters = OrderedDict()
 
     def reset(self):
-        for meter in self.meters:
+        for meter in self.meters.values():
             meter.reset()
 
     def update(self, name, value, meter_class=None):
