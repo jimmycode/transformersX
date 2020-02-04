@@ -15,6 +15,10 @@ import re
 import string
 import sys
 import logging
+import matplotlib
+
+matplotlib.use('Agg')
+import matplotlib.pyplot as plt
 
 
 class EVAL_OPTS():
@@ -242,8 +246,7 @@ def histogram_layer_count(layer_counts, qid_list, image_dir, name):
     if not qid_list:
         return
     x = [max(layer_counts[k]) for k in qid_list]
-    weights = np.ones_like(x) / float(len(x))
-    plt.hist(x, weights=weights, bins="auto")
+    plt.hist(x, bins="auto")
     plt.xlabel('Number of layers')
     plt.ylabel('Proportion of dataset')
     plt.title('Histogram of layer count: %s' % name)
@@ -367,9 +370,10 @@ def main(OPTS):
         mean_noAns_lc = histogram_layer_count(layer_counts, no_ans_qids, OPTS.out_image_dir, 'noAns')
         out_eval["HasAns_layer_count"] = mean_hasAns_lc
         out_eval["NoAns_layer_count"] = mean_noAns_lc
+        out_eval["NoAns_lc_delta"] = mean_noAns_lc - mean_hasAns_lc
     if OPTS.out_file:
         with open(OPTS.out_file, 'w') as f:
-            json.dump(out_eval, f)
+            json.dump(out_eval, f, indent=2)
     logging.info(json.dumps(out_eval, indent=2))
     return out_eval
 
