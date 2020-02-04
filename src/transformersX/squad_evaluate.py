@@ -20,12 +20,13 @@ import logging
 class EVAL_OPTS():
     def __init__(self, data_file, pred_file, out_file="",
                  na_prob_file="na_prob.json", na_prob_thresh=1.0,
-                 out_image_dir=None, verbose=False):
+                 layer_count_file=None, out_image_dir=None, verbose=False):
         self.data_file = data_file
         self.pred_file = pred_file
         self.out_file = out_file
         self.na_prob_file = na_prob_file
         self.na_prob_thresh = na_prob_thresh
+        self.layer_count_file = layer_count_file
         self.out_image_dir = out_image_dir
         self.verbose = verbose
 
