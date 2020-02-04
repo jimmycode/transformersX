@@ -5,6 +5,8 @@
 
 import time
 from collections import OrderedDict
+import torch
+import numpy
 
 
 class Meter(object):
@@ -17,27 +19,7 @@ class Meter(object):
     def update(self):
         raise NotImplementedError
 
-
-class MeterBundle(object):
-    def __init__(self):
-        self.meters = OrderedDict()
-
-    def reset(self):
-        for meter in self.meters:
-            meter.reset()
-
-    def update(self, name, value):
-        if name not in self.meters:
-            meter_class = self._infer_meter_class(value)
-            self.meters[name] = meter_class()
-
-        self.meters[name].update(value)
-
-    def write_log(self, log_writer):
-        for meter in self.meters:
-            meter.write_log(log_writer)
-
-    def _infer_meter_class(self, value):
+    def write_log(self, log_writer, name, global_step=None):
         raise NotImplementedError
 
 
@@ -49,19 +31,48 @@ class AverageMeter(Meter):
         self.reset()
 
     def reset(self):
-        self.val = 0
         self.avg = 0
         self.sum = 0
         self.count = 0
 
     def update(self, val, n=1):
-        self.val = val
+        assert n >= 0, "n cannot be negative."
         self.sum += val * n
         self.count += n
-        self.avg = self.sum / self.count
+
+    @property
+    def avg(self):
+        return self.sum / self.count
+
+    def write_log(self, log_writer, name, global_step=None):
+        log_writer.add_scalar(name, self.avg, global_step)
 
 
-class TimeMeter(object):
+class HistogramMeter(Meter):
+    """Computes and stores the all values for histogram visualisation"""
+
+    def __init__(self):
+        super(AverageMeter, self).__init__()
+        self.reset()
+
+    def reset(self):
+        self.val = None
+
+    def update(self, val, n=1):
+        if isinstance(val, torch.Tensor):
+            val_flat = val.view(-1)
+            self.val = torch.cat((self.val, val_flat), dim=0) if self.val is not None else val_flat
+        elif isinstance(val, numpy.ndarray):
+            val_flat = val.reshape((-1))
+            self.val = numpy.concatenate((self.val, val_flat), dim=0) if self.val is not None else val_flat
+        else:
+            raise ValueError("Value has invalid type.")
+
+    def write_log(self, log_writer, name, global_step=None):
+        log_writer.add_histogram(name, self.val, global_step)
+
+
+class TimeMeter(Meter):
     """Computes the average occurrence of some event per second"""
 
     def __init__(self, init=0):
@@ -83,8 +94,11 @@ class TimeMeter(object):
     def elapsed_time(self):
         return self.init + (time.time() - self.start)
 
+    def write_log(self, log_writer, name, global_step=None):
+        log_writer.add_scalar(name, self.avg, global_step)
 
-class StopwatchMeter(object):
+
+class StopwatchMeter(Meter):
     """Computes the sum/avg duration of some event in seconds"""
 
     def __init__(self):
@@ -108,3 +122,40 @@ class StopwatchMeter(object):
     @property
     def avg(self):
         return self.sum / self.n
+
+    def write_log(self, log_writer, name, global_step=None):
+        log_writer.add_scalar(name, self.avg, global_step)
+
+
+class MeterBundle(object):
+    def __init__(self):
+        self.meters = OrderedDict()
+
+    def reset(self):
+        for meter in self.meters:
+            meter.reset()
+
+    def update(self, name, value, meter_class=None):
+        if name not in self.meters:
+            if meter_class is None:
+                meter_class = self._infer_meter_class(value)
+            self.meters[name] = meter_class()
+
+        self.meters[name].update(value)
+
+    def write_log(self, log_writer, global_step=None):
+        for name, meter in self.meters.items():
+            meter.write_log(log_writer, name, global_step)
+
+    def _infer_meter_class(self, value):
+        # AverageMeter is the default meter class
+        if isinstance(value, torch.Tensor):
+            return HistogramMeter if value.dim() > 0 else AverageMeter
+
+        if isinstance(value, numpy.ndarray):
+            return HistogramMeter if value.ndim > 0 else AverageMeter
+
+        if type(value) in [int, float]:
+            return AverageMeter
+
+        raise ValueError("Cannot infer meter class type for %r" % value)
