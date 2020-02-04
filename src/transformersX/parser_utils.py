@@ -155,12 +155,12 @@ def get_parser():
     if args.do_train:
         add_training_args(parser)
         add_optimization_args(parser)
-        add_logging_args(parser)
         add_checkpoint_args(parser)
 
     if args.do_eval or (args.do_train and args.evaluate_during_training):
         add_evaluate_args(parser)
 
+    add_logging_args(parser)
     add_preprocess_args(parser)
     add_tokenizer_args(parser)
     add_environment_args(parser)
