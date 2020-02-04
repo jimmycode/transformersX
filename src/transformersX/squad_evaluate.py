@@ -43,6 +43,8 @@ def parse_args():
                         help='Model estimates of probability of no answer.')
     parser.add_argument('--na-prob-thresh', '-t', type=float, default=1.0,
                         help='Predict "" if no-answer probability exceeds this (default = 1.0).')
+    parser.add_argument('--layer-count-file', '-l', metavar='metadata.json',
+                        help='Number of layers forwarded.')
     parser.add_argument('--out-image-dir', '-p', metavar='out_images', default=None,
                         help='Save precision-recall curves to directory.')
     parser.add_argument('--verbose', '-v', action='store_true')
@@ -235,6 +237,21 @@ def histogram_na_prob(na_probs, qid_list, image_dir, name):
     plt.clf()
 
 
+def histogram_layer_count(layer_counts, qid_list, image_dir, name):
+    if not qid_list:
+        return
+    x = [max(layer_counts[k]) for k in qid_list]
+    weights = np.ones_like(x) / float(len(x))
+    plt.hist(x, weights=weights, bins="auto")
+    plt.xlabel('Number of layers')
+    plt.ylabel('Proportion of dataset')
+    plt.title('Histogram of layer count: %s' % name)
+    plt.savefig(os.path.join(image_dir, 'layer_count_hist_%s.png' % name))
+    plt.clf()
+
+    return sum(x) / len(x)
+
+
 def find_best_thresh(preds, scores, na_probs, qid_to_has_ans):
     num_no_ans = sum(1 for k in qid_to_has_ans if not qid_to_has_ans[k])
     cur_score = num_no_ans
@@ -342,6 +359,13 @@ def main(OPTS):
                                       qid_to_has_ans, OPTS.out_image_dir)
         histogram_na_prob(na_probs, has_ans_qids, OPTS.out_image_dir, 'hasAns')
         histogram_na_prob(na_probs, no_ans_qids, OPTS.out_image_dir, 'noAns')
+    if OPTS.layer_count_file and OPTS.out_image_dir:
+        with open(OPTS.layer_count_file) as f:
+            layer_counts = json.load(f)
+        mean_hasAns_lc = histogram_layer_count(layer_counts, has_ans_qids, OPTS.out_image_dir, 'hasAns')
+        mean_noAns_lc = histogram_layer_count(layer_counts, no_ans_qids, OPTS.out_image_dir, 'noAns')
+        out_eval["HasAns_layer_count"] = mean_hasAns_lc
+        out_eval["NoAns_layer_count"] = mean_noAns_lc
     if OPTS.out_file:
         with open(OPTS.out_file, 'w') as f:
             json.dump(out_eval, f)

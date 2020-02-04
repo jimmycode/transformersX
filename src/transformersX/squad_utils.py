@@ -890,6 +890,36 @@ def write_predictions_extended(all_examples, all_features, all_results, n_best_s
     return out_eval
 
 
+Metadata = collections.namedtuple("Metadata", ["unique_id", "sum_gates"])
+
+
+def write_metadata(all_examples, all_features, all_metadata, output_metadata_file):
+    logger.info("Writing metadata to: %s" % (output_metadata_file))
+
+    example_index_to_features = collections.defaultdict(list)
+    for feature in all_features:
+        example_index_to_features[feature.example_index].append(feature)
+
+    unique_id_to_metadata = {}
+    for metadata in all_metadata:
+        unique_id_to_metadata[metadata.unique_id] = metadata
+
+    all_metadata_json = collections.OrderedDict()
+
+    for (example_index, example) in enumerate(all_examples):
+        features = example_index_to_features[example_index]
+        metadata_json = []
+
+        for (feature_index, feature) in enumerate(features):
+            metadata = unique_id_to_metadata[feature.unique_id]
+            metadata_json.append(metadata.sum_gates)
+
+        all_metadata_json[example.qas_id] = metadata_json
+
+    with open(output_metadata_file, "w") as writer:
+        writer.write(json.dumps(all_metadata_json, indent=4) + "\n")
+
+
 def get_final_text(pred_text, orig_text, do_lower_case, verbose_logging=False):
     """Project the tokenized prediction back to the original text."""
 
