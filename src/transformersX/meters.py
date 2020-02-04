@@ -22,6 +22,9 @@ class Meter(object):
     def write_log(self, log_writer, name, global_step=None):
         raise NotImplementedError
 
+    def merge(self, other):
+        raise NotImplementedError
+
 
 class AverageMeter(Meter):
     """Computes and stores the average and current value"""
@@ -47,29 +50,44 @@ class AverageMeter(Meter):
     def write_log(self, log_writer, name, global_step=None):
         log_writer.add_scalar(name, self.avg, global_step)
 
+    def merge(self, other):
+        assert isinstance(other, AverageMeter)
+        self.sum += other.sum
+        self.count += other.count
+
 
 class HistogramMeter(Meter):
     """Computes and stores the all values for histogram visualisation"""
 
     def __init__(self):
         super(AverageMeter, self).__init__()
+        self.value_list = []
         self.reset()
 
     def reset(self):
-        self.val = None
+        self.value_list = []
 
-    def update(self, val, n=1):
-        if isinstance(val, torch.Tensor):
-            val_flat = val.view(-1)
-            self.val = torch.cat((self.val, val_flat), dim=0) if self.val is not None else val_flat
-        elif isinstance(val, numpy.ndarray):
-            val_flat = val.reshape((-1))
-            self.val = numpy.concatenate((self.val, val_flat), dim=0) if self.val is not None else val_flat
+    def update(self, val):
+        if isinstance(val, torch.Tensor) or isinstance(val, numpy.ndarray):
+            self.value_list.append(val)
         else:
             raise ValueError("Value has invalid type.")
 
     def write_log(self, log_writer, name, global_step=None):
-        log_writer.add_histogram(name, self.val, global_step)
+        if all(isinstance(val, torch.Tensor) for val in self.value_list):
+            val_flat_list = [val.view(-1) for val in self.value_list]
+            val_flat = torch.cat(val_flat_list, dim=0)
+        elif all(isinstance(val, numpy.ndarray) for val in self.value_list):
+            val_flat_list = [val.reshape((-1)) for val in self.value_list]
+            val_flat = numpy.concatenate(val_flat_list, dim=0)
+        else:
+            raise ValueError("Value has invalid type.")
+
+        log_writer.add_histogram(name, val_flat, global_step)
+
+    def merge(self, other):
+        assert isinstance(other, HistogramMeter)
+        self.value_list += other.value_list
 
 
 class TimeMeter(Meter):
@@ -159,3 +177,14 @@ class MeterBundle(object):
             return AverageMeter
 
         raise ValueError("Cannot infer meter class type for %r" % value)
+
+    def merge(self, other):
+        assert isinstance(other, MeterBundle)
+        for name, meter in other.meters.items():
+            if name not in self.meters:
+                self.meters[name] = meter
+            else:
+                self.meters[name].merge(meter)
+
+    def __add__(self, other):
+        self.merge(other)
