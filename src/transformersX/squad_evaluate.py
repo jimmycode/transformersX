@@ -358,12 +358,12 @@ def main(OPTS):
         merge_eval(out_eval, no_ans_eval, 'NoAns')
     if OPTS.na_prob_file:
         find_all_best_thresh(out_eval, preds, exact_raw, f1_raw, na_probs, qid_to_has_ans)
-    if OPTS.na_prob_file and OPTS.out_image_dir:
+    if OPTS.na_prob_file and os.path.exists(OPTS.na_prob_file) and OPTS.out_image_dir:
         run_precision_recall_analysis(out_eval, exact_raw, f1_raw, na_probs,
                                       qid_to_has_ans, OPTS.out_image_dir)
         histogram_na_prob(na_probs, has_ans_qids, OPTS.out_image_dir, 'hasAns')
         histogram_na_prob(na_probs, no_ans_qids, OPTS.out_image_dir, 'noAns')
-    if OPTS.layer_count_file and OPTS.out_image_dir:
+    if OPTS.layer_count_file and os.path.exists(OPTS.layer_count_file) and OPTS.out_image_dir:
         with open(OPTS.layer_count_file) as f:
             layer_counts = json.load(f)
         mean_hasAns_lc = histogram_layer_count(layer_counts, has_ans_qids, OPTS.out_image_dir, 'hasAns')
