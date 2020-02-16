@@ -894,7 +894,7 @@ Metadata = collections.namedtuple("Metadata", ["unique_id", "sum_gates"])
 
 
 def write_metadata(all_examples, all_features, all_metadata, output_metadata_file):
-    logger.info("Writing metadata to: %s" % (output_metadata_file))
+    logger.info("Writing metadata to: %s" % output_metadata_file)
 
     example_index_to_features = collections.defaultdict(list)
     for feature in all_features:

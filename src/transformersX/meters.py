@@ -186,5 +186,6 @@ class MeterBundle(object):
             else:
                 self.meters[name].merge(meter)
 
-    def __add__(self, other):
+    def __iadd__(self, other):
         self.merge(other)
+        return self
