@@ -60,7 +60,7 @@ class HistogramMeter(Meter):
     """Computes and stores the all values for histogram visualisation"""
 
     def __init__(self):
-        super(AverageMeter, self).__init__()
+        super(HistogramMeter, self).__init__()
         self.value_list = []
         self.reset()
 
