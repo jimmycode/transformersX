@@ -211,22 +211,37 @@ def run_precision_recall_analysis(main_eval, exact_raw, f1_raw, na_probs,
     num_true_pos = sum(1 for v in qid_to_has_ans.values() if v)
     if num_true_pos == 0:
         return
+
     pr_exact = make_precision_recall_eval(
         exact_raw, na_probs, num_true_pos, qid_to_has_ans,
         out_image=os.path.join(out_image_dir, 'pr_exact.png'),
         title='Precision-Recall curve for Exact Match score')
+    merge_eval(main_eval, pr_exact, 'pr_exact')
+
     pr_f1 = make_precision_recall_eval(
         f1_raw, na_probs, num_true_pos, qid_to_has_ans,
         out_image=os.path.join(out_image_dir, 'pr_f1.png'),
         title='Precision-Recall curve for F1 score')
-    oracle_scores = {k: float(v) for k, v in qid_to_has_ans.items()}
-    pr_oracle = make_precision_recall_eval(
-        oracle_scores, na_probs, num_true_pos, qid_to_has_ans,
-        out_image=os.path.join(out_image_dir, 'pr_oracle.png'),
-        title='Oracle Precision-Recall curve (binary task of HasAns vs. NoAns)')
-    merge_eval(main_eval, pr_exact, 'pr_exact')
     merge_eval(main_eval, pr_f1, 'pr_f1')
-    merge_eval(main_eval, pr_oracle, 'pr_oracle')
+
+    # Evaluate PR curve AUC for getting HasAns prediction correct
+    hasAns_oracle_scores = {k: float(v) for k, v in qid_to_has_ans.items()}
+    hasAns_pr_oracle = make_precision_recall_eval(
+        hasAns_oracle_scores, na_probs, num_true_pos, qid_to_has_ans,
+        out_image=os.path.join(out_image_dir, 'hasAns_pr_oracle.png'),
+        title='Oracle Precision-Recall curve (binary task of HasAns vs. NoAns)')
+    merge_eval(main_eval, hasAns_pr_oracle, 'HasAns_pr_oracle')
+
+    # Evaluate PR curve AUC for getting NoAns prediction correct
+    qid_to_no_ans = {k: not v for k, v in qid_to_has_ans.items()}
+    noAns_oracle_scores = {k: float(v) for k, v in qid_to_no_ans.items()}
+    hasAns_probs = {k: 1.0 - v for k, v in na_probs.items()}
+    num_noAns = sum(1 for v in qid_to_has_ans.values() if not v)
+    noAns_pr_oracle = make_precision_recall_eval(
+        noAns_oracle_scores, hasAns_probs, num_noAns, qid_to_no_ans,
+        out_image=os.path.join(out_image_dir, 'noAns_pr_oracle.png'),
+        title='Oracle Precision-Recall curve (binary task of NoAns vs. HasAns)')
+    merge_eval(main_eval, noAns_pr_oracle, 'NoAns_pr_oracle')
 
 
 def histogram_na_prob(na_probs, qid_list, image_dir, name):
