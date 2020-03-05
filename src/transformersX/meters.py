@@ -61,7 +61,7 @@ class AverageMeter(Meter):
         avg = self.avg
         if isinstance(avg, torch.Tensor):
             avg = avg.detach().cpu().item()
-        return "%.8f" % avg
+        return "%.6f" % avg
 
 
 class HistogramMeter(Meter):
