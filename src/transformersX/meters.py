@@ -58,7 +58,10 @@ class AverageMeter(Meter):
         self.count += other.count
 
     def __str__(self):
-        return str(self.avg)
+        avg = self.avg
+        if isinstance(avg, torch.Tensor):
+            avg = avg.detach().cpu().item()
+        return "%.8f" % avg
 
 
 class HistogramMeter(Meter):
