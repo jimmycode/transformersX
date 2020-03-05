@@ -25,6 +25,9 @@ class Meter(object):
     def merge(self, other):
         raise NotImplementedError
 
+    def __str__(self):
+        raise NotImplementedError
+
 
 class AverageMeter(Meter):
     """Computes and stores the average and current value"""
@@ -53,6 +56,9 @@ class AverageMeter(Meter):
         assert isinstance(other, AverageMeter)
         self.sum += other.sum
         self.count += other.count
+
+    def __str__(self):
+        return str(self.avg)
 
 
 class HistogramMeter(Meter):
@@ -188,3 +194,14 @@ class MeterBundle(object):
     def __iadd__(self, other):
         self.merge(other)
         return self
+
+    def __str__(self):
+        meter_values = []
+        for name, meter in self.meters.items():
+            try:
+                value_str = str(meter)
+            except:
+                continue
+            meter_values.append("%s=%s" % (name, value_str))
+
+        return ", ".join(meter_values)
