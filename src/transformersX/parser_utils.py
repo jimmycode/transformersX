@@ -78,6 +78,8 @@ def add_optimization_args(parser):
                        help="Number of updates steps to accumulate before performing a backward/update pass.")
     group.add_argument("--weight_decay", default=0.0, type=float, help="Weight decay if we apply some.")
     group.add_argument("--adam_epsilon", default=1e-8, type=float, help="Epsilon for Adam optimizer.")
+    group.add_argument("--adam_beta1", default=0.9, type=float, help="beta_1 for Adam optimizer.")
+    group.add_argument("--adam_beta2", default=0.999, type=float, help="beta_2 for Adam optimizer.")
     group.add_argument("--max_grad_norm", default=1.0, type=float, help="Max gradient norm.")
     group.add_argument("--num_train_epochs", default=3.0, type=float, help="Total number of training epochs to perform.")
     group.add_argument("--max_steps", default=-1, type=int,
