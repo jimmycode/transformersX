@@ -67,3 +67,12 @@ def get_trained_checkpoints(args):
         checkpoints = [c for c in checkpoints if os.path.exists(os.path.join(c, WEIGHTS_NAME))]
 
     return checkpoints
+
+
+def get_existing_checkpoints(path):
+    checkpoints = list(os.path.dirname(c) for c in sorted(glob.glob(os.path.join(path, WEIGHTS_NAME))))
+    if len(checkpoints) == 0:  # glob more aggressively
+        checkpoints = list(
+            os.path.dirname(c) for c in sorted(glob.glob(os.path.join(path, '**', WEIGHTS_NAME), recursive=True)))
+
+    return checkpoints

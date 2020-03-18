@@ -45,7 +45,7 @@ def add_evaluate_args(parser):
                             "If no data dir or train/predict files are specified, will run with tensorflow_datasets.")
     group.add_argument("--per_gpu_eval_batch_size", default=8, type=int, help="Batch size per GPU/CPU for evaluation.")
     group.add_argument("--eval_all_checkpoints", action="store_true",
-                       help="Evaluate all checkpoints starting with the same prefix as model_name ending and ending with step number")
+                       help="(deprecated) Evaluate all checkpoints starting with the same prefix as model_name ending and ending with step number")
     return group
 
 
