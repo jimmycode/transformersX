@@ -42,7 +42,8 @@ def save_checkpoint(args, model, global_step, eval_results=None, tokenizer=None,
         logging.info("Saving model checkpoint to %s", output_dir)
         model_to_save = model.module if hasattr(model, 'module') else model  # Take care of distributed/parallel training
         model_to_save.save_pretrained(output_dir)
-        json.dump(vars(args), open(os.path.join(output_dir, ARGS_CKPT), "w"), indent=4)  # save training arguments to json file
+        json.dump(vars(args), open(os.path.join(output_dir, ARGS_CKPT), "w"), indent=4,
+                  default=lambda x: str(x))  # save training arguments to json file
 
         if tokenizer is not None:  # save tokenizer
             tokenizer.save_pretrained(output_dir)
