@@ -5,7 +5,7 @@ def add_general_args(parser):
     group = parser.add_argument_group("General")
 
     group.add_argument("--model_type", default=None, type=str, required=True, help="Model type.")
-    group.add_argument("--model_name_or_path", default=None, type=str, required=True,
+    group.add_argument("--model_name_or_path", default=None, type=str,
                        help="Path to pre-trained model or shortcut name.")
     group.add_argument("--config_name", default="", type=str,
                        help="Pretrained config name or path if not the same as model_name.")
