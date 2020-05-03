@@ -35,7 +35,7 @@ def save_checkpoint(args, model, output_dirs=None, global_step=None, eval_result
                 output_dirs.append(os.path.join(args.output_dir, BEST_CKPT))
 
     for output_dir in output_dirs:
-        if not os.path.exists(output_dir):
+        if not os.path.exists(output_dir) and args.local_rank in [-1, 0]:
             os.makedirs(output_dir)
         else:
             for fn in os.listdir(output_dir):  # clean the directory
