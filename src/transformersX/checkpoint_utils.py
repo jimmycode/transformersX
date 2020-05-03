@@ -14,23 +14,25 @@ OPTIMIZER_CKPT = 'optimizer.pt'
 SCHEDULER_CKPT = 'scheduler.pt'
 
 
-def save_checkpoint(args, model, global_step, eval_results=None, tokenizer=None, optimizer=None, scheduler=None):
-    output_dirs = []
-    if args.save_all_checkpoints:
-        output_dirs = [os.path.join(args.output_dir, STEP_CKPT.format(global_step))]
+def save_checkpoint(args, model, output_dirs=None, global_step=None, eval_results=None,
+                    tokenizer=None, optimizer=None, scheduler=None):
+    if output_dirs is None:  # Get the output directories from args
+        output_dirs = []
+        if args.save_all_checkpoints and global_step is not None:
+            output_dirs = [os.path.join(args.output_dir, STEP_CKPT.format(global_step))]
 
-    if args.save_last_checkpoint:
-        output_dirs.append(os.path.join(args.output_dir, LAST_CKPT))
+        if args.save_last_checkpoint:
+            output_dirs.append(os.path.join(args.output_dir, LAST_CKPT))
 
-    if args.save_best_checkpoint and eval_results is not None:
-        # Get the metric for best checkpoint
-        eval_metric = eval_results[args.best_checkpoint_metric] if isinstance(eval_results, dict) else eval_results
-        prev_best = getattr(save_checkpoint, "best", eval_metric)
+        if args.save_best_checkpoint and eval_results is not None:
+            # Get the metric for best checkpoint
+            eval_metric = eval_results[args.best_checkpoint_metric] if isinstance(eval_results, dict) else eval_results
+            prev_best = getattr(save_checkpoint, "best", eval_metric)
 
-        is_better = (lambda x, y: x >= y) if args.maximize_best_checkpoint_metric else (lambda x, y: x <= y)
-        if is_better(eval_metric, prev_best):
-            save_checkpoint.best = eval_metric
-            output_dirs.append(os.path.join(args.output_dir, BEST_CKPT))
+            is_better = (lambda x, y: x >= y) if args.maximize_best_checkpoint_metric else (lambda x, y: x <= y)
+            if is_better(eval_metric, prev_best):
+                save_checkpoint.best = eval_metric
+                output_dirs.append(os.path.join(args.output_dir, BEST_CKPT))
 
     for output_dir in output_dirs:
         if not os.path.exists(output_dir):
@@ -40,7 +42,7 @@ def save_checkpoint(args, model, global_step, eval_results=None, tokenizer=None,
                 os.remove(os.path.join(output_dir, fn))
 
         logging.info("Saving model checkpoint to %s", output_dir)
-        model_to_save = model.module if hasattr(model, 'module') else model  # Take care of distributed/parallel training
+        model_to_save = model.module if hasattr(model, 'module') else model  # Take care of distributed/parallel module
         model_to_save.save_pretrained(output_dir)
         json.dump(vars(args), open(os.path.join(output_dir, ARGS_CKPT), "w"), indent=4,
                   default=lambda x: str(x))  # save training arguments to json file
