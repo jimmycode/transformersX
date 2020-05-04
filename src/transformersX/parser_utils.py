@@ -19,7 +19,7 @@ def add_general_args(parser):
                        help="Where do you want to store the pre-trained models downloaded from s3")
 
     group.add_argument("--do_train", action="store_true", help="Whether to run training.")
-    group.add_argument("--evaluate_during_training", action="store_true", help="Rul evaluation during training at each logging step.")
+    group.add_argument("--evaluate_during_training", action="store_true", help="Run evaluation during training at each logging step.")
     group.add_argument("--do_eval", action="store_true", help="Whether to run eval on the dev set.")
 
     group.add_argument("--seed", type=int, default=42, help="random seed for initialization")
@@ -157,11 +157,11 @@ def get_parser():
     if args.do_train:
         add_training_args(parser)
         add_optimization_args(parser)
-        add_checkpoint_args(parser)
 
     if args.do_eval or (args.do_train and args.evaluate_during_training):
         add_evaluate_args(parser)
 
+    add_checkpoint_args(parser)
     add_logging_args(parser)
     add_preprocess_args(parser)
     add_tokenizer_args(parser)
