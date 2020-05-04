@@ -38,7 +38,7 @@ def save_checkpoint(args, model, output_dirs=None, global_step=None, eval_result
         if not os.path.exists(output_dir) and args.local_rank in [-1, 0]:
             os.makedirs(output_dir)
         else:
-            if args.overwrite_output_dir:
+            if getattr(args, "overwrite_output_dir", False):
                 for fn in os.listdir(output_dir):  # clean the directory
                     full_fn = os.path.join(output_dir, fn)
                     if os.path.isfile(full_fn):
