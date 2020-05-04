@@ -38,8 +38,13 @@ def save_checkpoint(args, model, output_dirs=None, global_step=None, eval_result
         if not os.path.exists(output_dir) and args.local_rank in [-1, 0]:
             os.makedirs(output_dir)
         else:
-            for fn in os.listdir(output_dir):  # clean the directory
-                os.remove(os.path.join(output_dir, fn))
+            if args.overwrite_output_dir:
+                for fn in os.listdir(output_dir):  # clean the directory
+                    full_fn = os.path.join(output_dir, fn)
+                    if os.path.isfile(full_fn):
+                        os.remove(full_fn)
+                    elif os.path.isdir(full_fn):
+                        os.rmdir(full_fn)
 
         logging.info("Saving model checkpoint to %s", output_dir)
         model_to_save = model.module if hasattr(model, 'module') else model  # Take care of distributed/parallel module
