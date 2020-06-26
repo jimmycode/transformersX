@@ -87,4 +87,6 @@ def get_existing_checkpoints(path):
         checkpoints = list(
             os.path.dirname(c) for c in sorted(glob.glob(os.path.join(path, '**', WEIGHTS_NAME), recursive=True)))
 
+    logging.info("Found %d checkpoints: %s" % (len(checkpoints), "\n\t".join(checkpoints)))
+
     return checkpoints
