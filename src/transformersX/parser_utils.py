@@ -19,7 +19,8 @@ def add_general_args(parser):
                        help="Where do you want to store the pre-trained models downloaded from s3")
 
     group.add_argument("--do_train", action="store_true", help="Whether to run training.")
-    group.add_argument("--evaluate_during_training", action="store_true", help="Run evaluation during training at each logging step.")
+    group.add_argument("--evaluate_during_training", action="store_true",
+                       help="Run evaluation during training at each logging step.")
     group.add_argument("--do_eval", action="store_true", help="Whether to run eval on the dev set.")
 
     group.add_argument("--seed", type=int, default=42, help="random seed for initialization")
@@ -56,7 +57,8 @@ def add_preprocess_args(parser):
                             "longer than this will be truncated, and sequences shorter than this will be padded.")
     group.add_argument("--doc_stride", default=128, type=int,
                        help="When splitting up a long document into chunks, how much stride to take between chunks.")
-    group.add_argument("--overwrite_cache", action="store_true", help="Overwrite the cached training and evaluation sets")
+    group.add_argument("--overwrite_cache", action="store_true",
+                       help="Overwrite the cached training and evaluation sets")
     group.add_argument("--threads", type=int, default=1, help="multiple threads for converting example to features")
     return group
 
@@ -81,11 +83,14 @@ def add_optimization_args(parser):
     group.add_argument("--adam_beta1", default=0.9, type=float, help="beta_1 for Adam optimizer.")
     group.add_argument("--adam_beta2", default=0.999, type=float, help="beta_2 for Adam optimizer.")
     group.add_argument("--max_grad_norm", default=1.0, type=float, help="Max gradient norm.")
-    group.add_argument("--num_train_epochs", default=3.0, type=float, help="Total number of training epochs to perform.")
+    group.add_argument("--num_train_epochs", default=3.0, type=float,
+                       help="Total number of training epochs to perform.")
     group.add_argument("--max_steps", default=-1, type=int,
                        help="If > 0: set total number of training steps to perform. Override num_train_epochs.")
     group.add_argument("--warmup_steps", default=0, type=int, help="Linear warmup over warmup_steps.")
     group.add_argument("--warmup_ratio", default=0.0, type=float, help="Ratio of warmup over total number of steps.")
+    group.add_argument("--early_stop_patience", default=-1, type=int,
+                       help="Early stop if the metric did not improve for certain number of steps.")
     return group
 
 
@@ -121,7 +126,8 @@ def add_logging_args(parser):
 def add_checkpoint_args(parser):
     group = parser.add_argument_group("Checkpointing")
     group.add_argument("--save_steps", type=int, default=50, help="Save checkpoint every X updates steps.")
-    group.add_argument("--overwrite_output_dir", action="store_true", help="Overwrite the content of the output directory")
+    group.add_argument("--overwrite_output_dir", action="store_true",
+                       help="Overwrite the content of the output directory")
     group.add_argument("--save_all_checkpoints", action='store_true', help="Save all the checkpoint.")
     group.add_argument("--save_last_checkpoint", action='store_true',
                        help="Only save the last checkpoint, overwrite all previous one to save disk space.")
