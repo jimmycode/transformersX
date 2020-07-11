@@ -94,27 +94,6 @@ def add_optimization_args(parser):
     return group
 
 
-def add_squad_args(parser):
-    group = parser.add_argument_group("SQuAD dataset arguments")
-
-    group.add_argument("--version_2_with_negative", action="store_true",
-                       help="If true, the SQuAD examples contain some that do not have an answer.")
-    group.add_argument("--null_score_diff_threshold", type=float, default=0.0,
-                       help="If null_score - best_non_null is greater than the threshold predict null.")
-    group.add_argument("--max_query_length", default=64, type=int,
-                       help="The maximum number of tokens for the question. Questions longer than this will "
-                            "be truncated to this length.")
-    group.add_argument("--n_best_size", default=20, type=int,
-                       help="The total number of n-best predictions to generate in the nbest_predictions.json output file.")
-    group.add_argument("--max_answer_length", default=30, type=int,
-                       help="The maximum length of an answer that can be generated. This is needed because the start "
-                            "and end predictions are not conditioned on one another.")
-    group.add_argument("--verbose_logging", action="store_true",
-                       help="If true, all of the warnings related to data processing will be printed. "
-                            "A number of warnings are expected for a normal SQuAD evaluation.")
-    return group
-
-
 def add_logging_args(parser):
     group = parser.add_argument_group("Logging")
     group.add_argument("--logging_steps", type=int, default=50, help="Log every X updates steps.")
@@ -178,5 +157,22 @@ def get_parser():
 
 def get_squad_parser():
     parser = get_parser()
-    add_squad_args(parser)
+
+    group = parser.add_argument_group("SQuAD dataset arguments")
+    group.add_argument("--version_2_with_negative", action="store_true",
+                       help="If true, the SQuAD examples contain some that do not have an answer.")
+    group.add_argument("--null_score_diff_threshold", type=float, default=0.0,
+                       help="If null_score - best_non_null is greater than the threshold predict null.")
+    group.add_argument("--max_query_length", default=64, type=int,
+                       help="The maximum number of tokens for the question. Questions longer than this will "
+                            "be truncated to this length.")
+    group.add_argument("--n_best_size", default=20, type=int,
+                       help="The total number of n-best predictions to generate in the nbest_predictions.json output file.")
+    group.add_argument("--max_answer_length", default=30, type=int,
+                       help="The maximum length of an answer that can be generated. This is needed because the start "
+                            "and end predictions are not conditioned on one another.")
+    group.add_argument("--verbose_logging", action="store_true",
+                       help="If true, all of the warnings related to data processing will be printed. "
+                            "A number of warnings are expected for a normal SQuAD evaluation.")
+
     return parser
