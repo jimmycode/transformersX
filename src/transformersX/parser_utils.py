@@ -122,14 +122,26 @@ def add_checkpoint_args(parser):
 def add_environment_args(parser):
     group = parser.add_argument_group("Environment")
     group.add_argument("--no_cuda", action="store_true", help="Whether not to use CUDA when available")
-    group.add_argument("--local_rank", type=int, default=-1, help="local_rank for distributed training on gpus")
     group.add_argument("--fp16", action="store_true",
                        help="Whether to use 16-bit (mixed) precision (through NVIDIA apex) instead of 32-bit", )
     group.add_argument("--fp16_opt_level", type=str, default="O1",
                        help="For fp16: Apex AMP optimization level selected in ['O0', 'O1', 'O2', and 'O3']."
                             "See details at https://nvidia.github.io/apex/amp.html")
-    # group.add_argument("--server_ip", type=str, default="", help="Can be used for distant debugging.")
-    # group.add_argument("--server_port", type=str, default="", help="Can be used for distant debugging.")
+    return group
+
+
+def add_distributed_args(parser):
+    group = parser.add_argument_group("Distributed training")
+
+    group.add_argument("--world_size", type=int, default=1, help="Total number of GPUs (across all nodes).")
+
+    group.add_argument("--distributed_rank", type=int, default=0,
+                       help="Which GPU to use (usually configured automatically)")
+    group.add_argument("--local_rank", "--device_id", type=int, default=0,
+                       help="Which GPU to use (usually configured automatically)")
+
+    group.add_argument("--master_ip", type=str, default=None, help="Master IP for distributed training.")
+    group.add_argument("--master_port", type=str, default=None, help="Master port for distributed training.")
 
     return group
 
@@ -151,6 +163,7 @@ def get_parser():
     add_preprocess_args(parser)
     add_tokenizer_args(parser)
     add_environment_args(parser)
+    add_distributed_args(parser)
 
     return parser
 
